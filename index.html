@@ -642,34 +642,37 @@ async function finish(){
   const mailtoHref = buildMailtoHref(prettyData);
   ensureMailtoFallbackLink(mailtoHref);
 
-  setTimeout(async () => {
-    const hint = document.getElementById("autoActionsHint");
-    hint.textContent = "Gerando PDF e HTML… depois tentaremos abrir seu e-mail. Se não abrir, use o botão/link de fallback.";
+  const hint = document.getElementById("autoActionsHint");
+const ua = navigator.userAgent || "";
+const isIOS = /iPhone|iPad|iPod/i.test(ua);
 
-    try{
-      await generatePDF(true);
-    }catch(e){
-      console.error(e);
-    }
+hint.textContent = isIOS
+  ? "iPhone: tentando abrir o e-mail agora. Se não abrir, toque no botão/link verde. Em seguida, geraremos PDF/HTML."
+  : "Abrindo o e-mail… e gerando PDF/HTML.";
 
-    await sleep(450);
+try{
+  // iPhone: abre AGORA (maior chance de não ser bloqueado)
+  openMailtoByAnchor(mailtoHref);
+}catch(e){
+  console.error(e);
+}
 
-    try{
-      saveOfflineHTML(true);
-    }catch(e){
-      console.error(e);
-    }
+setTimeout(async () => {
+  try{ await generatePDF(true); }catch(e){ console.error(e); }
+  await sleep(450);
 
-    await sleep(450);
+  try{ saveOfflineHTML(true); }catch(e){ console.error(e); }
+  await sleep(450);
 
-    try{
-      openMailtoByAnchor(mailtoHref);
-      hint.textContent = "PDF/HTML gerados. Tentamos abrir o e-mail. Se não abriu, toque no link de fallback acima.";
-    }catch(e){
-      console.error(e);
-      hint.textContent = "PDF/HTML gerados. Toque no link de fallback para abrir o e-mail e enviar.";
-    }
-  }, 700);
+  // fora do iOS, pode tentar abrir de novo (em Android/desktop costuma funcionar)
+  if(!isIOS){
+    try{ openMailtoByAnchor(mailtoHref); }catch(e){ console.error(e); }
+  }
+
+  hint.textContent = isIOS
+    ? "Se o e-mail não abriu, toque no botão/link verde. Se PDF/HTML não baixarem automaticamente, use “Salvar PDF” e “Salvar HTML”."
+    : "Se o e-mail não abriu, use o botão/link verde. Se downloads forem bloqueados, use “Salvar PDF/Salvar HTML”.";
+}, 700);
 }
 
 /* =========================
