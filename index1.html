@@ -547,7 +547,8 @@ async function finish(){
 /* PARTE 2/2 CONTINUA: generatePDF + saveOfflineHTML + restart */
 </script>
 </body>
-</html>async function generatePDF(silent=false){
+</html>
+async function generatePDF(silent=false){
   try{
     const data = window._igaData;
     if(!data){ if(!silent) alert("Gere o resultado antes de salvar PDF."); return; }
