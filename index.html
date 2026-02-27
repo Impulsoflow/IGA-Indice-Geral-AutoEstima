@@ -195,7 +195,7 @@ const MAILTO_TO = "impulsoflow@gmail.com";
   
 // ====== ENVIO AUTOMÁTICO (Apps Script + Sheets + E-mail) ======
 const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz32nkhagXbfQ1Wl5PcgctOK7mtNKKwkx_CfhjKKDImuKV9cGYA0RI6N_ROtgHLjmKvnA/exec";
-const API_KEY = "2026Impulso$";
+const API_KEY = "2026Impulsoi$";
 const QUEUE_KEY = "impulso_pending_queue_v1";
 
 function impulsoLoadQueue(){ try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); } catch { return []; } }
@@ -246,6 +246,13 @@ async function impulsoSendResult(data){
     // campo livre (serve para qualquer teste)
     resumo: data.resumo ?? "",
 
+    igaPct: data.igaPct ?? "",
+    nivel: data.nivel ?? "",
+    perfilTitulo: data.perfilTitulo ?? "",
+    perfilTexto: data.perfilTexto ?? "",
+    minimoSaudavel: data.minimoSaudavel ?? "",
+    modulosJson: data.modulosJson ?? "",
+    
     // mantém compatibilidade com seus outros testes
     percentualA: data.percentualA ?? "",
     percentualB: data.percentualB ?? "",
@@ -261,8 +268,7 @@ async function impulsoSendResult(data){
 
   const ok = await impulsoSendWithRetry(payload, 3);
   if (!ok) impulsoEnqueue(payload);
-}
-
+}  
 window.addEventListener("load", () => { impulsoFlushQueue(); });
 window.addEventListener("online", () => { impulsoFlushQueue(); });
   
@@ -722,14 +728,40 @@ const resumoAutoestima =
   s.pctByDim.map((v,i)=> `- ${DIMENSIONS[i].name}: ${Math.round(v)}%`).join("\n") + `\n\n` +
   `Mínimo saudável por módulo: ${MIN_HEALTHY_PCT}%`;
 
+const modulosArr = s.pctByDim.map((v,i)=> ({
+  moduloKey: DIMENSIONS[i].key,
+  moduloNome: DIMENSIONS[i].name,
+  percentual: Math.round(v)
+}));
+
+
+  
+const resumoAutoestima =
+  `IGA: ${igaPct}% | Nível: ${level}\n` +
+  `Perfil: ${profile.title}\n\n` +
+  `Módulos:\n` +
+  modulosArr.map(m => `- ${m.moduloNome}: ${m.percentual}%`).join("\n") + `\n\n` +
+  `Mínimo saudável por módulo: ${MIN_HEALTHY_PCT}%`;
+
 impulsoSendResult({
   testId: "autoestima_v1",
   nome: user.name,
   profissao: user.occupation,
   idade: user.age,
   email: user.email,
-  resumo: resumoAutoestima
-});
+
+  resumo: resumoAutoestima,
+
+  igaPct: igaPct,
+  nivel: level,
+  perfilTitulo: profile.title,
+  perfilTexto: profile.text,
+  minimoSaudavel: MIN_HEALTHY_PCT,
+  modulosJson: JSON.stringify(modulosArr)
+});  
+
+  
+
   
   const hint = document.getElementById("autoActionsHint");
 const ua = navigator.userAgent || "";
