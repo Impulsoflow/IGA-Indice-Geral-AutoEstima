@@ -192,8 +192,81 @@
 
 const MIN_HEALTHY_PCT = 70;
 const MAILTO_TO = "impulsoflow@gmail.com";
+  
+// ====== ENVIO AUTOMÁTICO (Apps Script + Sheets + E-mail) ======
+const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz32nkhagXbfQ1Wl5PcgctOK7mtNKKwkx_CfhjKKDImuKV9cGYA0RI6N_ROtgHLjmKvnA/exec";
+const API_KEY = "2026Impulso$";
+const QUEUE_KEY = "impulso_pending_queue_v1";
 
-const DIMENSIONS = [
+function impulsoLoadQueue(){ try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); } catch { return []; } }
+function impulsoSaveQueue(q){ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
+function impulsoEnqueue(payload){ const q = impulsoLoadQueue(); q.push(payload); impulsoSaveQueue(q); }
+
+async function impulsoPost(payload){
+  await fetch(ENDPOINT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+}
+
+async function impulsoSendWithRetry(payload, tries=3){
+  for(let i=1; i<=tries; i++){
+    try { await impulsoPost(payload); return true; }
+    catch(e){ await new Promise(r => setTimeout(r, 200 + i*i*200)); }
+  }
+  return false;
+}
+
+async function impulsoFlushQueue(){
+  const q = impulsoLoadQueue();
+  if (!q.length) return;
+
+  const remaining = [];
+  for (const item of q){
+    const ok = await impulsoSendWithRetry(item, 3);
+    if (!ok) remaining.push(item);
+    await new Promise(r => setTimeout(r, 150));
+  }
+  impulsoSaveQueue(remaining);
+}
+
+async function impulsoSendResult(data){
+  const payload = {
+    apiKey: API_KEY,
+    testId: data.testId || "sem_testId",
+    timestampClient: new Date().toISOString(),
+
+    nome: data.nome || "",
+    profissao: data.profissao || "",
+    idade: data.idade || "",
+    email: data.email || "",
+
+    // campo livre (serve para qualquer teste)
+    resumo: data.resumo ?? "",
+
+    // mantém compatibilidade com seus outros testes
+    percentualA: data.percentualA ?? "",
+    percentualB: data.percentualB ?? "",
+    percentualC: data.percentualC ?? "",
+    totalA: data.totalA ?? "",
+    totalB: data.totalB ?? "",
+    totalC: data.totalC ?? "",
+    totalGeral: data.totalGeral ?? "",
+    vazamento: data.vazamento ?? "",
+
+    userAgent: navigator.userAgent
+  };
+
+  const ok = await impulsoSendWithRetry(payload, 3);
+  if (!ok) impulsoEnqueue(payload);
+}
+
+window.addEventListener("load", () => { impulsoFlushQueue(); });
+window.addEventListener("online", () => { impulsoFlushQueue(); });
+  
+  const DIMENSIONS = [
   { key:"d1", name:"Autovalorização e Autoaceitação", items:[
     "Sinto que sou uma pessoa de valor, pelo menos tanto quanto outras pessoas.",
     "Consigo reconhecer qualidades em mim, mesmo quando erro.",
