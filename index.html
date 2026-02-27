@@ -714,7 +714,23 @@ async function finish(){
 
   const mailtoHref = buildMailtoHref(prettyData);
   ensureMailtoFallbackLink(mailtoHref);
+// ====== ENVIO AUTOMÁTICO PARA PLANILHA + E-MAIL (Apps Script) ======
+const resumoAutoestima =
+  `IGA: ${igaPct}% | Nível: ${level}\n` +
+  `Perfil: ${profile.title}\n\n` +
+  `Módulos:\n` +
+  s.pctByDim.map((v,i)=> `- ${DIMENSIONS[i].name}: ${Math.round(v)}%`).join("\n") + `\n\n` +
+  `Mínimo saudável por módulo: ${MIN_HEALTHY_PCT}%`;
 
+impulsoSendResult({
+  testId: "autoestima_v1",
+  nome: user.name,
+  profissao: user.occupation,
+  idade: user.age,
+  email: user.email,
+  resumo: resumoAutoestima
+});
+  
   const hint = document.getElementById("autoActionsHint");
 const ua = navigator.userAgent || "";
 const isIOS = /iPhone|iPad|iPod/i.test(ua);
