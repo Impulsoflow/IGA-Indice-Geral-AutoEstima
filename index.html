@@ -611,7 +611,7 @@ function moduleDetailHTML(pctByDim){
 }
 
 // 
-// 📄 GERAÇÃO DO PDF 
+// 📄 GERAÇÃO DO PDF - LAYOUT VERTICAL PREMIUM (ANTI-SOBREPOSIÇÃO)
 // 
 async function generatePdfDocAndFileName() {
   const data = window._igaData;
@@ -680,7 +680,7 @@ async function generatePdfDocAndFileName() {
   y += 49;
 
   // ==========================================
-  // BLOCO 2: COMO VOCÊ COSTUMA SE COMPORTAR (LAYOUT PREMIUM)
+  // BLOCO: COMO VOCÊ COSTUMA SE COMPORTAR
   // ==========================================
   const profileTitleClean = data.profile.title ? data.profile.title.replace(/[🔴🟠🟡🟢🟣]/g, '').trim() : "";
   
@@ -700,28 +700,25 @@ async function generatePdfDocAndFileName() {
   
   box(margin, y, boxW, dashH);
   
-  // Título Principal do Quadro
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(30, 58, 138); 
   doc.text("COMO VOCÊ COSTUMA SE COMPORTAR", margin + 6, y + 8);
   
-  // Linha divisória sutil
   doc.setDrawColor(226, 232, 240);
   doc.setLineWidth(0.3);
   doc.line(margin + 6, y + 11.5, margin + boxW - 6, y + 11.5);
 
-  // --- PAINEL ESQUERDO (MÉTRICAS - CARD INTERNO) ---
-  const leftBoxX = margin + 6;
-  const leftBoxY = y + 16;
-  const leftBoxW = 54;
-  const leftBoxH = dashH - 22;
-  const centerX = leftBoxX + (leftBoxW / 2);
+  const mainLeftBoxX = margin + 6;
+  const mainLeftBoxY = y + 16;
+  const mainLeftBoxW = 54;
+  const mainLeftBoxH = dashH - 22;
+  const mainCenterX = mainLeftBoxX + (mainLeftBoxW / 2);
 
   doc.setFillColor(248, 250, 252); 
-  doc.roundedRect(leftBoxX, leftBoxY, leftBoxW, leftBoxH, 2, 2, "F");
+  doc.roundedRect(mainLeftBoxX, mainLeftBoxY, mainLeftBoxW, mainLeftBoxH, 2, 2, "F");
   doc.setDrawColor(226, 232, 240);
-  doc.roundedRect(leftBoxX, leftBoxY, leftBoxW, leftBoxH, 2, 2, "S");
+  doc.roundedRect(mainLeftBoxX, mainLeftBoxY, mainLeftBoxW, mainLeftBoxH, 2, 2, "S");
 
   const igaPct = Number(data.igaPct ?? 0);
   const pctByDim = Array.isArray(data.pctByDim) ? data.pctByDim.map(v=>Math.round(v)) : [];
@@ -730,55 +727,53 @@ async function generatePdfDocAndFileName() {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
-  doc.text("ÍNDICE GERAL (IGA)", centerX, leftBoxY + 7, { align: "center" });
+  doc.text("ÍNDICE GERAL (IGA)", mainCenterX, mainLeftBoxY + 7, { align: "center" });
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(28);
   doc.setTextColor(30, 64, 175); 
-  doc.text(`${igaPct}%`, centerX, leftBoxY + 18, { align: "center" });
+  doc.text(`${igaPct}%`, mainCenterX, mainLeftBoxY + 18, { align: "center" });
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
   const levelText = `${data.level || ""}`.toUpperCase();
-  const levelLines = doc.splitTextToSize(levelText, leftBoxW - 4);
-  doc.text(levelLines, centerX, leftBoxY + 25, { align: "center" });
+  const levelLines = doc.splitTextToSize(levelText, mainLeftBoxW - 4);
+  doc.text(levelLines, mainCenterX, mainLeftBoxY + 25, { align: "center" });
 
-  const sealText = anyLow ? "FOCO REQUERIDO" : "ALTO DESEMPENHO";
-  const sealFill = anyLow ? [254, 243, 199] : [219, 234, 254];
-  const sealStroke = anyLow ? [245, 158, 11] : [59, 130, 246];
-  const sealW = 42, sealH = 7.5;
-  const sealX = centerX - (sealW / 2);
-  const sealY = leftBoxY + 28 + ((levelLines.length - 1) * 3.5);
+  const mainSealText = anyLow ? "FOCO REQUERIDO" : "ALTO DESEMPENHO";
+  const mainSealFill = anyLow ? [254, 243, 199] : [219, 234, 254];
+  const mainSealStroke = anyLow ? [245, 158, 11] : [59, 130, 246];
+  const mainSealW = 42, mainSealH = 7.5;
+  const mainSealX = mainCenterX - (mainSealW / 2);
+  const mainSealY = mainLeftBoxY + 28 + ((levelLines.length - 1) * 3.5);
   
-  doc.setDrawColor(...sealStroke);
-  doc.setFillColor(...sealFill);
-  doc.roundedRect(sealX, sealY, sealW, sealH, 1.5, 1.5, "FD");
+  doc.setDrawColor(...mainSealStroke);
+  doc.setFillColor(...mainSealFill);
+  doc.roundedRect(mainSealX, mainSealY, mainSealW, mainSealH, 1.5, 1.5, "FD");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
   doc.setTextColor(15, 23, 42);
-  doc.text(sealText, centerX, sealY + 5.2, { align: "center" });
+  doc.text(mainSealText, mainCenterX, mainSealY + 5.2, { align: "center" });
 
-  // --- PAINEL DIREITO (SÍNTESE COMPORTAMENTAL) ---
-  const rightX = leftBoxX + leftBoxW + 8;
+  const mainRightX = mainLeftBoxX + mainLeftBoxW + 8;
   
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
   doc.setFont("helvetica", "bold");
-  doc.text("SÍNTESE DO PERFIL COMPORTAMENTAL", rightX, leftBoxY + 7);
+  doc.text("SÍNTESE DO PERFIL COMPORTAMENTAL", mainRightX, mainLeftBoxY + 7);
 
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
-  doc.text(titleLines, rightX, leftBoxY + 13);
+  doc.text(titleLines, mainRightX, mainLeftBoxY + 13);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(71, 85, 105);
-  doc.text(descLines, rightX, leftBoxY + 15 + hTitle);
+  doc.text(descLines, mainRightX, mainLeftBoxY + 15 + hTitle);
 
   y += dashH + 8;
-  // ==========================================
 
   box(margin, y, boxW, 100);
   setSection();
@@ -800,27 +795,34 @@ async function generatePdfDocAndFileName() {
 
   y = 35;
   setSection();
-  doc.text("Plano de Desenvolvimento", margin, y);
+  doc.text("Planos de Desenvolvimento Individuais", margin, y);
   y += 8;
 
+  // ==========================================
+  // BLOCOS: MÓDULOS DE DESENVOLVIMENTO
+  // ==========================================
   (data.pctByDim || []).forEach((v, i) => {
     const vv = Math.round(v);
     const isLow = vv < MIN_HEALTHY_PCT;
-    const statusText = isLow ? "ZONA DE DESENVOLVIMENTO (Abaixo do Ideal)" : "ZONA DE EXCELÊNCIA (Padrão de Alta Performance)";
 
+    const rightW = 104; 
+    
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    const explLines = doc.splitTextToSize(`Parecer Técnico: ${bandExplain(vv)}`, boxW - 12);
+    doc.setFontSize(9.5);
+    const explLines = doc.splitTextToSize(bandExplain(vv), rightW);
     
     const tips = `• ${practicalLine(i, vv, 1)}\n\n• ${practicalLine(i, vv, 2)}\n\n• ${practicalLine(i, vv, 3)}`;
-    const tipsLines = doc.splitTextToSize(tips, boxW - 12);
+    const tipsLines = doc.splitTextToSize(tips, rightW);
 
-    const hExpl = explLines.length * 4;
-    const hTips = tipsLines.length * 4;
+    const hExpl = explLines.length * 4.2;
+    const hTips = tipsLines.length * 4.2;
     
-    const boxHeight = 12 + 8 + hExpl + 10 + hTips + 8;
+    const rightSideH = 7 + hExpl + 10 + hTips;
+    const leftSideH = 45; 
+    
+    const boxHeight = Math.max(leftSideH, rightSideH) + 26;
 
-    if(y + boxHeight > 275) {
+    if(y + boxHeight > 280) {
       addSignatureFooter();
       doc.addPage();
       doc.setFillColor(248, 250, 252);
@@ -831,32 +833,81 @@ async function generatePdfDocAndFileName() {
 
     box(margin, y, boxW, boxHeight);
     
-    let currentY = y + 8;
-
-    // 1. Título do Módulo
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(isLow ? 180 : 30, isLow ? 83 : 64, isLow ? 9 : 175); 
-    doc.text(`${DIMENSIONS[i].name.toUpperCase()}  [ ${vv}% - ${statusText} ]`, margin + 6, currentY);
+    doc.setTextColor(isLow ? 180 : 30, isLow ? 83 : 64, isLow ? 9 : 138); 
+    doc.text(DIMENSIONS[i].name.toUpperCase(), margin + 6, y + 8);
     
-    // 2. Explicação
-    currentY += 8;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(71, 85, 105);
-    doc.text(explLines, margin + 6, currentY);
-    
-    // 3. Título Mentoria
-    currentY += hExpl + 6;
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.3);
+    doc.line(margin + 6, y + 11.5, margin + boxW - 6, y + 11.5);
+
+    // --- PAINEL ESQUERDO ---
+    const leftBoxX = margin + 6;
+    const leftBoxY = y + 16;
+    const leftBoxW = 54;
+    const leftBoxH = boxHeight - 22;
+    const centerX = leftBoxX + (leftBoxW / 2);
+
+    doc.setFillColor(248, 250, 252); 
+    doc.roundedRect(leftBoxX, leftBoxY, leftBoxW, leftBoxH, 2, 2, "F");
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(leftBoxX, leftBoxY, leftBoxW, leftBoxH, 2, 2, "S");
+
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
-    doc.text("Mentoria Prática Sugerida:", margin + 6, currentY);
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text("PONTUAÇÃO", centerX, leftBoxY + 8, { align: "center" });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(26);
+    doc.setTextColor(isLow ? 217 : 30, isLow ? 119 : 64, isLow ? 6 : 175); 
+    doc.text(`${vv}%`, centerX, leftBoxY + 19, { align: "center" });
     
-    // 4. Passos de Mentoria
-    currentY += 6;
+    const sealText = isLow ? "ZONA DE\nDESENVOLVIMENTO" : "ZONA DE\nEXCELÊNCIA";
+    const sealFill = isLow ? [254, 243, 199] : [219, 234, 254];
+    const sealStroke = isLow ? [245, 158, 11] : [59, 130, 246];
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.5);
+    const sealLines = doc.splitTextToSize(sealText, leftBoxW - 8);
+    const sealW = 46;
+    const sealH = 4 + (sealLines.length * 3.5);
+    const sealY = leftBoxY + 26;
+    const sealX = centerX - (sealW / 2);
+    
+    doc.setDrawColor(...sealStroke);
+    doc.setFillColor(...sealFill);
+    doc.roundedRect(sealX, sealY, sealW, sealH, 1.5, 1.5, "FD");
+    doc.setTextColor(15, 23, 42);
+    doc.text(sealLines, centerX, sealY + 5, { align: "center" });
+
+    // --- PAINEL DIREITO ---
+    const rightX = leftBoxX + leftBoxW + 8;
+    let textY = leftBoxY + 7;
+    
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "bold");
+    doc.text("PARECER TÉCNICO", rightX, textY);
+    
+    textY += 5;
     doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
     doc.setTextColor(71, 85, 105);
-    doc.text(tipsLines, margin + 6, currentY);
+    doc.text(explLines, rightX, textY);
+    
+    textY += hExpl + 6;
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "bold");
+    doc.text("MENTORIA PRÁTICA (ACTION STEPS)", rightX, textY);
+    
+    textY += 5;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text(tipsLines, rightX, textY);
 
     y += boxHeight + 6; 
   });
