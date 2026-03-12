@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Avaliação Nível de Autoestima — Instituto Impulso</title>
+  <title>Diagnóstico Nível de Autoestima — Instituto Impulso</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
@@ -98,7 +98,7 @@
         A mudança pode acontecer em um instante
       </div>
       <h1 class="mt-5 text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
-        Avaliação Nível de Autoestima
+       Diagnóstico Nível de Autoestima
       </h1>
       <p class="text-sm text-slate-500 mt-2 max-w-xl mx-auto">Uma ferramenta estruturada em Psicologia Positiva e Liderança Comportamental para mapear sua base emocional.</p>
     </div>
@@ -129,7 +129,7 @@
         </div>
         <div class="flex justify-end mt-7 actions-mobile">
           <button onclick="startTest()" class="btn-primary text-white px-8 py-3.5 rounded-xl shadow-lg font-extrabold text-lg hover:shadow-xl w-full md:w-auto">
-            Iniciar Avaliação Comportamental
+            Iniciar Diagnóstico Comportamental
           </button>
         </div>
       </div>
@@ -149,7 +149,7 @@
           <p id="auto-send-status" class="text-center text-sm font-bold text-amber-600 animate-pulse"></p>
           <div id="final-success-message" class="hidden mt-3 mb-5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-5 rounded-xl shadow-sm text-center">
             <p class="text-xl font-extrabold text-blue-900 mb-1">✅ Relatório Processado e Salvo com Sucesso!</p>
-            <p class="text-sm text-blue-800">Sua avaliação completa em PDF foi gerada e encaminhada para o seu e-mail.</p>
+            <p class="text-sm text-blue-800">Seu diagnóstico completo em PDF foi gerado e encaminhado para o seu e-mail.</p>
           </div>
         </div>
 
@@ -638,7 +638,7 @@ async function generatePdfDocAndFileName() {
     doc.setFillColor(15, 23, 42); 
     doc.rect(0, 0, pageW, 25, "F");
     setTitle();
-    doc.text("INSTITUTO IMPULSO - RELATÓRIO EXECUTIVO", pageW / 2, 13, { align: "center" });
+    doc.text("ÍNDICE GERAL AUTOESTIMA - Instituto Impulso", pageW / 2, 13, { align: "center" });
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(203, 213, 225);
@@ -653,7 +653,7 @@ async function generatePdfDocAndFileName() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
-    doc.text("Master Coach Institucional - impulsoflow@gmail.com", pageW - margin, pageH - 8, { align: "right" });
+    doc.text("Rogério Braga - Master Caoch Executivo - impulsoflow@gmail.com", pageW - margin, pageH - 8, { align: "right" });
   }
 
   doc.setFillColor(248, 250, 252);
@@ -664,7 +664,7 @@ async function generatePdfDocAndFileName() {
   
   box(margin, y, boxW, 42);
   setSection();
-  doc.text("INFORMAÇÕES DO PARTICIPANTE", margin + 6, y + 8);
+  doc.text("Informações do participante", margin + 6, y + 8);
   
   setBody();
   const u = data.user || {};
@@ -699,7 +699,7 @@ async function generatePdfDocAndFileName() {
   
   box(margin, y, boxW, dashH);
   setSection();
-  doc.text("SÍNTESE DO PERFIL COMPORTAMENTAL", margin + 6, y + 8);
+  doc.text("Como você costuma se comportar", margin + 6, y + 8);
 
   const igaPct = Number(data.igaPct ?? 0);
   const pctByDim = Array.isArray(data.pctByDim) ? data.pctByDim.map(v=>Math.round(v)) : [];
@@ -715,7 +715,8 @@ async function generatePdfDocAndFileName() {
   doc.text(`${data.level || ""}`.toUpperCase(), margin + 6, y + 32);
 
   // Selo de Foco
-  const sealText = anyLow ? "FOCO REQUERIDO" : "ALTO DESEMPENHO";
+  const sealText = anyLow ? "FOCO REQUERIDO";
+  const sealText = anyLow ? "ALTO DESEMPENHO";
   const sealFill = anyLow ? [254, 243, 199] : [219, 234, 254];
   const sealStroke = anyLow ? [245, 158, 11] : [59, 130, 246];
   const sealW = 34, sealH = 8;
@@ -743,7 +744,7 @@ async function generatePdfDocAndFileName() {
 
   box(margin, y, boxW, 100);
   setSection();
-  doc.text("DISTRIBUIÇÃO DE COMPETÊNCIAS", margin + 6, y + 8);
+  doc.text("Distribuição das suas habilidades", margin + 6, y + 8);
   
   if (chartInstance) {
     const imgData = chartInstance.toBase64Image();
@@ -761,14 +762,14 @@ async function generatePdfDocAndFileName() {
 
   y = 35;
   setSection();
-  doc.text("MENTORIA E PLANO DE DESENVOLVIMENTO", margin, y);
+  doc.text("Plano de Desenvolvimento", margin, y);
   y += 8;
 
   (data.pctByDim || []).forEach((v, i) => {
     const vv = Math.round(v);
     const isLow = vv < MIN_HEALTHY_PCT;
-    const statusText = isLow ? "ZONA DE DESENVOLVIMENTO (Abaixo do Ideal)" : "ZONA DE EXCELÊNCIA (Padrão de Alta Performance)";
-
+    const statusText = isLow ? "ZONA DE DESENVOLVIMENTO (Abaixo do Ideal)";
+    const statusText = isLow ? "ZONA DE EXCELÊNCIA (Padrão de Alta Performance)";    
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     const explLines = doc.splitTextToSize(`Parecer Técnico: ${bandExplain(vv)}`, boxW - 12);
@@ -825,7 +826,7 @@ async function generatePdfDocAndFileName() {
   });
 
   addSignatureFooter();
-  const pdfFileName = `Relatorio_Executivo_${sanitize(data.user.name).replace(/\s+/g,"_")}.pdf`;
+  const pdfFileName = `I.G.A.: ${sanitize(data.user.name).replace(/\s+/g,"_")}.pdf`;
   return { doc, pdfFileName };
 }
 
@@ -833,7 +834,7 @@ async function autoSendWithPdf() {
   if (autoSendInProgress || autoSendDone) return;
   autoSendInProgress = true;
   
-  setAutoSendStatus("⏳ Construindo Diagnóstico Executivo e salvando PDF...", "pending");
+  setAutoSendStatus("⏳ Construindo Diagnóstico I.G.A. e salvando PDF...", "pending");
 
   try {
     const data = window._igaData;
